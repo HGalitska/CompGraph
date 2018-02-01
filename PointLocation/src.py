@@ -27,13 +27,14 @@ class Edge:
         okay = True
         intersect_x = (self.end.x - self.start.x) * (p.y - self.start.y) / (self.end.y - self.start.y) + self.start.x
         if self.start.x <= intersect_x <= self.end.x or self.start.x > intersect_x > self.end.x:
-            # exclude vertices if intersection:
+            # exclude vertices if intersects on them:
             if self.start.y == p.y and intersect_x == self.start.x:
                 okay = False
             if self.end.y == p.y and intersect_x != self.end.x:
                 okay = False
         if okay:
             return intersect_x
+
 
 # Hard coded polygon and point for testing.
 
@@ -47,7 +48,8 @@ e_5 = Edge(3, 4, 3, -1)
 e_6 = Edge(3, -1, 1, -2)
 e_7 = Edge(1, -2, -1, -1)
 edges = [e_0, e_1, e_2, e_3, e_4, e_5, e_6, e_7]
-point = Point(-1, -0.5)
+
+point = Point(3, 2)
 
 
 # User input for polygon and point.
@@ -68,11 +70,11 @@ point = Point(-1, -0.5)
 # point = Point(p_x, p_y)
 
 
-crossing_n = 0
+crossing_n = 0  # crossing number
 
 for edge in edges:
-    if edge.is_upward(point) or edge.is_downward(point):
-        if point.x < edge.intersect(point):
+    if edge.is_upward(point) or edge.is_downward(point):  # if current edge is crossed by the ray starting at point
+        if point.x < edge.intersect(point):  # and if intersection is on the right
             crossing_n += 1
 
 print("Crossing number: " + str(crossing_n))
