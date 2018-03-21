@@ -7,11 +7,14 @@ class Point:
         self.x = float(x)
         self.y = float(y)
 
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+
 
 class Edge:
-    def __init__(self, start_x, start_y, end_x, end_y):
-        self.start = Point(start_x, start_y)
-        self.end = Point(end_x, end_y)
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end
 
     def is_upward(self, p):
         if self.start.y <= p.y < self.end.y:
@@ -24,61 +27,61 @@ class Edge:
         return False
 
     def intersect(self, p):
-        okay = True
-        intersect_x = (self.end.x - self.start.x) * (p.y - self.start.y) / (self.end.y - self.start.y) + self.start.x
-        if self.start.x <= intersect_x <= self.end.x or self.start.x > intersect_x > self.end.x:
-            # exclude vertices if intersects on them:
-            if self.start.y == p.y and intersect_x == self.start.x:
-                okay = False
-            if self.end.y == p.y and intersect_x != self.end.x:
-                okay = False
-        if okay:
+        x_1 = self.start.x
+        x_2 = self.end.x
+        y_1 = self.start.y
+        y_2 = self.end.y
+
+        intersect_x = (x_2 - x_1) * (p.y - y_1) / (y_2 - y_1) + x_1  # from line equation
+        cross = Point(intersect_x, p.y)
+        if self.start == cross or self.end == cross:
+            return
+        else:
             return intersect_x
 
 
-# Hard coded polygon and point for testing.
+def read_points(file_name):
+    points = []
+    input_array = open(file_name).read().split()
+
+    i = 0
+    while i < len(input_array):
+        points.append(Point(int(input_array[i]), int(input_array[i + 1])))
+        i += 2
+    return points
 
 
-e_0 = Edge(-1, -1, -3, 1)
-e_1 = Edge(-3, 1, -3, 4)
-e_2 = Edge(-3, 4, 1, 1)
-e_3 = Edge(1, 1, 1, 4)
-e_4 = Edge(1, 4, 3, 4)
-e_5 = Edge(3, 4, 3, -1)
-e_6 = Edge(3, -1, 1, -2)
-e_7 = Edge(1, -2, -1, -1)
-edges = [e_0, e_1, e_2, e_3, e_4, e_5, e_6, e_7]
+vertices = read_points("polygon.txt")
+num_vertices = num_edges = len(vertices)
 
-point = Point(3, 2)
+edges = []
+for j in range(num_edges):
+    if j == num_edges - 1:
+        edges.append(Edge(vertices[num_vertices - 1], vertices[0]))
+        break
+    edges.append(Edge(vertices[j], vertices[j + 1]))
 
+test_points = read_points("points.txt")
 
-# User input for polygon and point.
-# edges = []
-# n = input("How many edges does your polygon have?")
-#
-# for i in range(n):
-#     print("Coordinates for edge " + str(i) + ":")
-#     x_1 = input("x1: ")
-#     y_1 = input("y1: ")
-#     x_2 = input("x2: ")
-#     y_2 = input("y2: ")
-#     edges.insert(i, Edge(x_1, y_1, x_2, y_2))
-#
-# print("Coordinates for point to be located:")
-# p_x = input("x: ")
-# p_y = input("y: ")
-# point = Point(p_x, p_y)
+k = 1
+for point in test_points:
+    min_x = min(vertices, key=lambda v: v.x).x
+    max_x = max(vertices, key=lambda v: v.x).x
 
+    if point.x < min_x or point.x > max_x:
+        print(str(k) + ". Outside.")
+        continue
 
-crossing_n = 0  # crossing number
+    crossing_n = 0  # crossing number
+    for edge in edges:
+        if edge.is_upward(point) or edge.is_downward(
+                point):  # if current edge is crossed by the ray starting at point
+            if point.x < edge.intersect(point):  # and if intersection is on the right
+                crossing_n += 1
 
-for edge in edges:
-    if edge.is_upward(point) or edge.is_downward(point):  # if current edge is crossed by the ray starting at point
-        if point.x < edge.intersect(point):  # and if intersection is on the right
-            crossing_n += 1
-
-print("Crossing number: " + str(crossing_n))
-if crossing_n % 2 == 0:
-    print("Point is outside the polygon.")
-else:
-    print("Point is inside the polygon.")
+    if crossing_n % 2 == 0:
+        print(str(k) + ". Outside.")
+    else:
+        print(str(k) + ". Inside.")
+    k += 1
+    
