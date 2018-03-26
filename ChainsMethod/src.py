@@ -152,5 +152,5 @@ for j in range(num_chains):
     create_chain(j)
 
 print(chains)
-point_to_find = Point(10, 8)
+point_to_find = Point(7, 13)
 print(find(point_to_find))
