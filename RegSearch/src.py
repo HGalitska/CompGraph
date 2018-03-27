@@ -52,11 +52,11 @@ def insert(root, i):
 
     b = root.interval.begin
     e = root.interval.end
-    if i.begin <= b and i.end >= e:
+    if i.begin.x <= b.x and i.end.x >= e.x:
         root.in_intervals.append(i)
-    if i.begin <= (e + b) / 2:
+    if i.begin.x <= (e.x + b.x) / 2:
         root.left_son = insert(root.left_son, i)
-    if i.end > (e + b) / 2:
+    if i.end.x > (e.x + b.x) / 2:
         root.right_son = insert(root.right_son, i)
     return root
 
@@ -65,7 +65,7 @@ def make_intervals(array):
     result = []
     size = len(array)
     for i in range(size - 1):
-        new_interval = Interval(array[i].x, array[i + 1].x)
+        new_interval = Interval(array[i], array[i + 1])
         result.append(new_interval)
     return result
 
@@ -86,15 +86,35 @@ n = len(points)
 
 intervals = make_intervals(points)
 
-tree_root = Node(Interval(0, 14), None, None)
+tree_root = Node(Interval(points[0], points[n - 1]), None, None)
+# tree_root = None
 for i in range(0, len(intervals)):
     tree_root = insert(tree_root, intervals[i])
 
-region_interval = Interval(region[0].x, region[1].x)
+region_interval = Interval(region[0], region[2])
 tree_root = insert(tree_root, region_interval)
 
 nodes = []
+nodes_for_region = []
 inorder(tree_root)
 for i in range(0, len(nodes)):
     if region_interval in nodes[i].in_intervals:
-        print(nodes[i])
+        nodes_for_region.append(nodes[i])
+
+result = []
+for node in nodes_for_region:
+    b = node.interval.begin
+    e = node.interval.end
+    if b.y > region_interval.end.y or b.y < region_interval.begin.y:
+        continue
+    else:
+        if b not in result:
+            result.append(b)
+    if e.y > region_interval.end.y or e.y < region_interval.begin.y:
+        continue
+    else:
+        if e not in result:
+            result.append(e)
+
+print(result)
+print("Total: " + str(len(result)) + " points.")
