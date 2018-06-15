@@ -99,6 +99,8 @@ def find_hull_approx(points):
     plt.draw()
     potential_hull = []
     for stripe in stripes:
+        if len(stripe) == 0:
+            continue
         low = min(stripe, key = lambda point: point.y)
         high = max(stripe, key=lambda point: point.y)
         if potential_hull.count(low) == 0:
@@ -109,6 +111,11 @@ def find_hull_approx(points):
         plt.plot([low.x, high.x], [low.y, high.y], 'ro')
 
     plt.draw()
+
+    if potential_hull.count(leftmost) == 0:
+        potential_hull.append(leftmost)
+    if potential_hull.count(rightmost) == 0:
+        potential_hull.append(rightmost)
 
     # за знайденими потенційними точками шукаємо їх опуклу оболонку
     return get_jarvis_hull(potential_hull, len(potential_hull))
